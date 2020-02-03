@@ -3,13 +3,9 @@
 # data.apid_data_for_fake
 
 # import ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 import os
 import numpy
 import struct
-from copy import copy, deepcopy
-
 
 
 class Data(object):

@@ -1,4 +1,4 @@
-from data import Data
+from microspy.data import Data
 
 import sys
 import matplotlib.pyplot as plt
