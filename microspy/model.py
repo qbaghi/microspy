@@ -1,8 +1,8 @@
 import numpy as np
 import pyfftw
 from pyfftw.interfaces.numpy_fft import fft, ifft
-from microspy import fileload, cmsread
-from microspy import rdbin
+from . import fileload, cmsread
+from . import rdbin
 from scipy import interpolate
 
 

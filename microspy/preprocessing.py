@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import signal
-from microspy import regression
+from . import regression
 from pyfftw.interfaces.numpy_fft import fft
 from scipy import interpolate
 

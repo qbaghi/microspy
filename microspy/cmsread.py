@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 #-*- coding: utf-8 -*-
 import os
-from microspy import rdbin
+from . import rdbin
 import numpy as np
 
 

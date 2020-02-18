@@ -1,5 +1,5 @@
 import numpy as np
-from microspy.cmsread import read_cmsm
+from .cmsread import read_cmsm
 
 
 def load_acceleration_modes(file_path, axes=np.array(['X', 'Y', 'Z']),
