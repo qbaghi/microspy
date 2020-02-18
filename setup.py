@@ -4,12 +4,7 @@ import os
 import sys
 import re
 
-try:
-    from setuptools import setup
-    setup
-except ImportError:
-    from distutils.coding import setup
-    setup
+from setuptools import setup, find_packages
 
 
 setup(name='microspy',
@@ -19,7 +14,7 @@ setup(name='microspy',
       long_description=open('README.md').read(),
       license='see LICENSE.txt',
       keywords="",
-      packages=['microspy'],
+      packages=find_packages(exclude='docs'),
       install_requires=['numpy', 'scipy', 'pyfftw'])
 
 # # Always prefer setuptools over distutils
