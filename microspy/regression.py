@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# Author: Quentin Baghi 2019
 import numpy as np
 from scipy import linalg as la
 

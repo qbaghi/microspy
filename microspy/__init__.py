@@ -1,4 +1,4 @@
-""" microspy/__init__.py """
+# -*- coding: utf-8 -*-
 
 # __all__ = []
 from . import fileload, cmsread, data, model, preprocessing, rdbin, regression

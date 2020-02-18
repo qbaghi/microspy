@@ -1,5 +1,4 @@
-#!/usr/bin/python2.7
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 from . import rdbin
 import numpy as np

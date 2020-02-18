@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# Author: Quentin Baghi 2019
 # data.apid_data_for_fake
 
 # import ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

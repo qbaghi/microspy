@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+# Author: Quentin Baghi 2019
 from .data import Data
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path
+
 
 def read(file):
     if os.path.exists(file):
@@ -12,6 +15,7 @@ def read(file):
         return tmp
     else:
         return None
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
