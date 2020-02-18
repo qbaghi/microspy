@@ -2,6 +2,8 @@ import numpy as np
 import pyfftw
 from pyfftw.interfaces.numpy_fft import fft, ifft
 from microspy import fileload, cmsread
+from microspy import rdbin
+from scipy import interpolate
 
 
 def sensors_to_modes(acc_1, acc_2):
@@ -79,7 +81,10 @@ class PhysicsModel:
         self.f_cal_lin = 0.00122847554
         self.fe = 4.0
 
-    def loadgradients(self, actens=True, fileformat='bin'):
+    def loadgradients(self, actens=True, fileformat='bin',
+                      date_type='actens',
+                      date_path=None,
+                      mask_path=None):
 
         # ==========================================================================
         # 1. Load Actens files
@@ -154,35 +159,74 @@ class PhysicsModel:
 
             if fileformat == 'bin':
 
-                self.t1, gx, mask = cmsread.read_cmsm(self.actens_path
-                                                   + 'Acc_gravite1.bin')
-                n_data = len(gx)
-                del gx
-                self.ttensor = np.zeros((n_data, 6))
-                self.t2, self.ttensor[:, 0], mask = cmsread.read_cmsm(
-                    self.actens_path + 'Gradient_gravite11.bin')
-                self.t2, self.ttensor[:, 1], mask = cmsread.read_cmsm(
-                    self.actens_path + 'Gradient_gravite12.bin')
-                self.t2, self.ttensor[:, 2], mask = cmsread.read_cmsm(
-                    self.actens_path + 'Gradient_gravite13.bin')
-                self.t2, self.ttensor[:, 3], mask = cmsread.read_cmsm(
-                    self.actens_path + 'Gradient_gravite22.bin')
-                self.t2, self.ttensor[:, 4], mask = cmsread.read_cmsm(
-                    self.actens_path + 'Gradient_gravite23.bin')
-                self.t2, self.ttensor[:, 5], mask = cmsread.read_cmsm(
-                    self.actens_path + 'Gradient_gravite33.bin')
+                self.g = np.array([rdbin.read(
+                    self.actens_path + 'Acc_gravite'+str(i)+'.bin')._values
+                    for i in range(1, 4)]).T
+                self.omega = np.array([rdbin.read(
+                    self.actens_path + 'Vit_angulaire'+str(i)+'.bin')._values
+                    for i in range(1, 4)]).T
+                self.omega_dot = np.array([rdbin.read(
+                    self.actens_path + 'Acc_angulaire'+str(i)+'.bin')._values
+                    for i in range(1, 4)]).T
 
-                # Initialization
-                self.g = np.zeros((n_data, 3))
-                self.omega = np.zeros((n_data, 3))
-                self.omega_dot = np.zeros((n_data, 3))
-                for i in range(1, 4):
-                    self.t1, self.g[:, i-1], mask = cmsread.read_cmsm(
-                        self.actens_path + 'Acc_gravite'+str(i)+'.bin')
-                    self.t4, self.omega[:, i-1], mask = cmsread.read_cmsm(
-                        self.actens_path + 'Vit_angulaire'+str(i)+'.bin')
-                    self.t5, self.omega_dot[:, i-1], mask = cmsread.read_cmsm(
-                        self.actens_path + 'Acc_angulaire'+str(i)+'.bin')
+                if date_path is None:
+                    date_path = self.actens_path
+
+                dates = rdbin.read(date_path + 'datation_actens.bin')
+                self.t1 = dates._values
+
+                indices = ['11', '12', '13', '22', '23', '33']
+
+                self.ttensor = np.array([rdbin.read(
+                    self.actens_path
+                    + 'Gradient_gravite'+indices[i]+'.bin')._values
+                    for i in range(6)]).T
+                # d = rdbin.read(file_path)
+                # dates = rdbin.read(date_path)
+                # t = dates._values
+                # mask = rdbin.read(mask_path)
+                # m = mask._values
+                # obs = d._values
+
+                # self.t1, gx, mask = cmsread.read_cmsm(self.actens_path
+                #                                    + 'Acc_gravite1.bin',
+                #                                    datatype=date_type)
+                # n_data = len(gx)
+                # del gx
+                # self.ttensor = np.zeros((n_data, 6))
+                # self.t2, self.ttensor[:, 0], mask = cmsread.read_cmsm(
+                #     self.actens_path + 'Gradient_gravite11.bin',
+                #     datatype=date_type)
+                # self.t2, self.ttensor[:, 1], mask = cmsread.read_cmsm(
+                #     self.actens_path + 'Gradient_gravite12.bin',
+                #     datatype=date_type)
+                # self.t2, self.ttensor[:, 2], mask = cmsread.read_cmsm(
+                #     self.actens_path + 'Gradient_gravite13.bin',
+                #     datatype=date_type)
+                # self.t2, self.ttensor[:, 3], mask = cmsread.read_cmsm(
+                #     self.actens_path + 'Gradient_gravite22.bin',
+                #     datatype=date_type)
+                # self.t2, self.ttensor[:, 4], mask = cmsread.read_cmsm(
+                #     self.actens_path + 'Gradient_gravite23.bin',
+                #     datatype=date_type)
+                # self.t2, self.ttensor[:, 5], mask = cmsread.read_cmsm(
+                #     self.actens_path + 'Gradient_gravite33.bin',
+                #     datatype=date_type)
+                #
+                # # Initialization
+                # self.g = np.zeros((n_data, 3))
+                # self.omega = np.zeros((n_data, 3))
+                # self.omega_dot = np.zeros((n_data, 3))
+                # for i in range(1, 4):
+                #     self.t1, self.g[:, i-1], mask = cmsread.read_cmsm(
+                #         self.actens_path + 'Acc_gravite'+str(i)+'.bin',
+                #         datatype=date_type)
+                #     self.t4, self.omega[:, i-1], mask = cmsread.read_cmsm(
+                #         self.actens_path + 'Vit_angulaire'+str(i)+'.bin',
+                #         datatype=date_type)
+                #     self.t5, self.omega_dot[:, i-1], mask = cmsread.read_cmsm(
+                #         self.actens_path + 'Acc_angulaire'+str(i)+'.bin',
+                #         datatype=date_type)
 
             elif fileformat == 'txt':
 
@@ -228,3 +272,105 @@ class PhysicsModel:
 
         # Set the synchronized dates to the gradient dates
         self.tsync = self.t1
+
+    def interpolate(self, t_in, y_in, t_out):
+
+        f_interp = interpolate.interp1d(t_in, y_in, kind='linear')
+
+        return f_interp(t_out)
+
+    def interpolategradient(self):
+
+        # Data length
+        n2 = len(self.gammad[:, 0])
+
+        # Invalidities of the gradient
+        m_grad = np.ones(n2)
+        m_grad[self.Sxx == 0] = 0
+
+        # Interpolate zero values in the gradient
+        tN = np.arange(0, n2)/self.fe
+        ivalues = self.interpolate(tN[m_grad == 1], self.sxx[m_grad == 1],
+                                   tN[m_grad == 0])
+        Snew = np.zeros(len(self.sxx))
+        Snew[:] = self.sxx
+        Snew[m_grad == 0] = ivalues
+        self.Sxx = Snew
+
+        return tN
+
+    def synchronize(self,date1,date2):
+
+        # Synchronization of datation
+        t1_min = np.min(date1)
+        t1_max = np.max(date1)
+        t2_min = np.min(date2)
+        t2_max = np.max(date2)
+
+        if t1_min <= t2_min :
+            t_start = t2_min
+        else :
+            t_start = t1_min
+        if t1_max <= t2_max :
+            t_end = t1_max
+        else:
+            t_end = t2_max
+
+        n_start_1 = np.argmin( np.abs( t_start - date1 ) )
+        n_end_1 = np.argmin( np.abs( t_end - date1 ) )
+        n_start_2 = np.argmin( np.abs( t_start - date2 ) )
+        n_end_2 = np.argmin( np.abs( t_end - date2 ) )
+
+        return n_start_1,n_end_1,n_start_2,n_end_2
+
+
+
+    def cutgradient(self,ns,ne):
+
+        # Cut the gradients if needed
+        self.g = self.g[ns:ne,:]
+        self.Sxx = self.Sxx[ns:ne]
+        self.Syy = self.Syy[ns:ne]
+        self.Szz = self.Szz[ns:ne]
+        self.Sxy = self.Sxy[ns:ne]
+        self.Sxz = self.Sxz[ns:ne]
+        self.Syz = self.Syz[ns:ne]
+        # Cut also the angular rates by assuming that initially they are
+        # synchronized with the gradients
+        self.Omega = self.Omega[ns:ne, :]
+        self.Omega_dot = self.Omega_dot[ns:ne, :]
+
+    def synchronizeall(self, pos=False):
+
+        # Synchronization of acceleration and gradient:
+        if np.abs(self.t1[0]/self.date[0]) < 1/900.:
+            # If t1 is in milisec and date in sec, then convert t1
+            self.date = self.date/1000.
+        elif np.abs(self.t1[0]/self.date[0]) > 900.:
+            self.t1 = self.t1/1000.
+        ns1, ne1, ns2, ne2 = self.synchronize(self.date, self.t1)
+        # Cut acceleration if needed
+        self.gammad = self.gammad[ns1:ne1, :]
+        self.gammac = self.gammac[ns1:ne1, :]
+        self.tsync = self.date[ns1:ne1]
+        self.date = self.date[ns1:ne1]
+        # Cut the gradients if needed
+        self.cutgradient(ns2, ne2)
+        self.t1 = self.t1[ns2:ne2]
+
+        if pos == True :
+            # Synchronization of acceleration and position:
+            ns1p, ne1p, ns2p, ne2p = self.synchronize(self.tsync, self.tpos)
+            # Cut acceleration if needed
+            self.gammad = self.gammad[ns1p:ne1p, :]
+            self.gammac = self.gammac[ns1p:ne1p, :]
+            self.tsync = self.tsync[ns1p:ne1p]
+            self.date = self.date[ns1p:ne1p]
+            # Cut the gradients if needed
+            self.cutgradient(ns1p, ne1p)
+            self.t1 = self.t1[ns2p:ne2p]
+            # Cut the positions
+            self.Delta_t = self.Delta_t[ns2p:ne2p,:]
+            self.Delta_t_dot = self.Delta_t_dot[ns2p:ne2p,:]
+            self.Delta_t_dot_dot = self.Delta_t_dot_dot[ns2p:ne2p,:]
+            self.tpos = self.tpos[ns2p:ne2p]

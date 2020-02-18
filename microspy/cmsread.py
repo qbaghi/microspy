@@ -1,8 +1,9 @@
 #!/usr/bin/python2.7
 #-*- coding: utf-8 -*-
 import os
-import rdbin
+from microspy import rdbin
 import numpy as np
+
 
 def read_lpdn(fname):
     """fname -- full path to data file """
@@ -17,7 +18,20 @@ def read_lpdn(fname):
 
     return t, obs, M
 
-def read_cmsm(fname, datatype='412'):
+
+def read_custom(file_path, date_path,  mask_path):
+
+    d = rdbin.read(file_path)
+    dates = rdbin.read(date_path)
+    t = dates._values
+    mask = rdbin.read(mask_path)
+    m = mask._values
+    obs = d._values
+
+    return t, obs, m
+
+
+def read_cmsm(fname, datatype='412', verbose=False):
 
     d = rdbin.read(fname)
 
@@ -27,45 +41,56 @@ def read_cmsm(fname, datatype='412'):
 
     try:
         obs = d._values
-        print("Successful acceleration loading.")
+        if verbose:
+            print("Successful acceleration loading.")
     except AttributeError:
-        print("Acceleration file not found.")
+        if verbose:
+            print("Acceleration file not found.")
 
     try:
         dates = rdbin.read(os.path.join(os.sep, p, d._file_dates))
         t = dates._values
-        print("Successful datation loading.")
+        if verbose:
+            print("Successful datation loading.")
         mask = rdbin.read(os.path.join(os.sep, p, d.get_mask_file()))
         M = mask._values
-        print("Successful mask loading.")
+        if verbose:
+            print("Successful mask loading.")
         success = True
     except AttributeError:
-        print("Datation file not found, try another file name...")
+        if verbose:
+            print("Datation file not found, try another file name...")
 
     if not success:
         try:
             dates = rdbin.read(os.path.join(os.sep, p, 'datation'+datatype+'.bin'))
             t = dates._values
-            print("Successful datation loading.")
+            if verbose:
+                print("Successful datation loading.")
             mask = rdbin.read(os.path.join(os.sep, p, 'mask'+datatype+'.bin'))
             M = mask._values
-            print("Successful mask loading.")
+            if verbose:
+                print("Successful mask loading.")
             success = True
         except AttributeError:
-            print("Datation file not found, try another path...")
+            if verbose:
+                print("Datation file not found, try another path...")
 
     if not success:
         try:
             datepath = os.path.abspath(os.path.join(fname , "../../.."))
             dates = rdbin.read(datepath + '/' + 'datation' + datatype + '.bin')
             t = dates._values
-            print("Successful datation loading.")
+            if verbose:
+                print("Successful datation loading.")
             mask = rdbin.read(datepath + '/' + 'mask' + datatype + '.bin')
             M = mask._values
-            print("Successful mask loading.")
+            if verbose:
+                print("Successful mask loading.")
             success = True
         except AttributeError:
-            print("Datation file not found, try another path...")
+            if verbose:
+                print("Datation file not found, try another path...")
 
     if not success:
         try:
@@ -73,13 +98,16 @@ def read_cmsm(fname, datatype='412'):
             new_fname = datepath + '/DatesAndMasks_01/datation' + datatype + '.bin'
             dates = rdbin.read(new_fname)
             t = dates._values
-            print("Successful datation loading.")
+            if verbose:
+                print("Successful datation loading.")
             mask = rdbin.read(datepath + '/DatesAndMasks_01/mask' + datatype + '.bin')
             M = mask._values
-            print("Successful mask loading.")
+            if verbose:
+                print("Successful mask loading.")
             success = True
         except AttributeError:
-            print("Datation file not found, try another path...")
+            if verbose:
+                print("Datation file not found, try another path...")
 
     if not success:
         try:
@@ -87,18 +115,21 @@ def read_cmsm(fname, datatype='412'):
             new_fname = datepath + '/DatesAndMasks_01/datation' + datatype + '.bin'
             dates = rdbin.read(new_fname)
             t = dates._values
-            print("Successful datation loading.")
+            if verbose:
+                print("Successful datation loading.")
             mask = rdbin.read(datepath+'/DatesAndMasks_01/mask' + datatype + '.bin')
             M = mask._values
-            print("Successful mask loading.")
+            if verbose:
+                print("Successful mask loading.")
             success = True
         except AttributeError:
-            print("Datation loading failed.")
+            if verbose:
+                print("Datation loading failed.")
 
     return t, obs, M
 
 
-def read_QO(fname,datatype='Acc'):
+def read_qo(fname, datatype='Acc'):
 
     d = rdbin.read(fname)
 
