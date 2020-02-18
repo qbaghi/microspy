@@ -1,6 +1,15 @@
-import ez_setup
-ez_setup.use_setuptools()
-from setuptools import setup, find_packages
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import sys
+import re
+
+try:
+    from setuptools import setup
+    setup
+except ImportError:
+    from distutils.coding import setup
+    setup
 
 
 setup(name='microspy',
@@ -10,7 +19,7 @@ setup(name='microspy',
       long_description=open('README.md').read(),
       license='see LICENSE.txt',
       keywords="",
-      packages=find_packages(exclude='docs'),
+      packages=['microspy'],
       install_requires=['numpy', 'scipy', 'pyfftw'])
 
 # # Always prefer setuptools over distutils
