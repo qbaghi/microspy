@@ -31,6 +31,30 @@ def read_custom(file_path, date_path,  mask_path):
 
 
 def read_cmsm(fname, datatype='412', verbose=False):
+    """
+    Read CMSM data using the specified file path.
+    Also, attemps to read associated dates and masks, starting from the current
+    directory and going up.
+
+    Parameters
+    ----------
+    fname : str
+        file path including file name
+    datatype : type
+        datation prefix
+    verbose : bool
+        if True, talks a lot.
+
+    Returns
+    -------
+    t : ndarray
+        time vector
+    obs : ndarray
+        observation vector (physical quantity as a function of time)
+    M : ndarray
+        data mask
+
+    """
 
     d = rdbin.read(fname)
 
@@ -132,7 +156,7 @@ def read_qo(fname, datatype='Acc'):
 
     d = rdbin.read(fname)
 
-    p = os.path.join(os.path.dirname(fname) )#get the data directory
+    p = os.path.join(os.path.dirname(fname))  #get the data directory
 
     try:
         dates = rdbin.read(os.path.join(os.sep, p, d._file_dates))

@@ -9,8 +9,8 @@ import os.path
 
 def read(file):
     if os.path.exists(file):
-        f=open(file,'rb')
-        tmp=Data.read(f)
+        f = open(file, 'rb')
+        tmp = Data.read(f)
         f.close()
         return tmp
     else:

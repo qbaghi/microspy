@@ -40,6 +40,18 @@ def coperiodogram(x, y, w):
 class PhysicsModel:
 
     def __init__(self, actens_path, su):
+        """Class to retrieve and preprocess model data from ACTENS software
+        including gravitational and inertial gradient, gravitational
+        accelerations, angular accelerations, etc.
+
+        Parameters
+        ----------
+        actens_path : str
+            Path where to find the ACTENS files
+        su : str
+            Type of sensor unit {'SUEP', 'SUREF'}
+
+        """
 
         self.actens_path = actens_path
         self.su = su
